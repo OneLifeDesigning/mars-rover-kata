@@ -23,14 +23,16 @@ let directions = ["N", "E", "S", "W"];
 
 let groundGridCells = [];
 
-for (let indexH = 0; indexH <= groundGrid.horizontalLength; indexH++) {
-    for (let indexV = 0; indexV <= groundGrid.verticalLength; indexV++) {
+for (let indexH = 0; indexH < groundGrid.horizontalLength; indexH++) {
+    for (let indexV = 0; indexV < groundGrid.verticalLength; indexV++) {
         groundGridCells.push({ x: indexH, y: indexV });   
     }
 }
+console.log(groundGridCells);
 
 function moveRover(currentDirection, currentPosition, actionDirection, actionPosition) {
     if (actionDirection == 1, actionDirection == 2) {
+        // TODO: I have created the function using a switch but it does not convince me, since in this case I know the number of addresses and their peculiarities compared to the index array but I think I can debug it in a way that is more efficient for movement in general.
         switch (directions.indexOf(currentDirection)) {
             case 0:
                 if (actionDirection == 1) {
