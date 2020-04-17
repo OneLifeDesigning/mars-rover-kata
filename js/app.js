@@ -28,14 +28,15 @@ for (let indexH = 0; indexH < groundGrid.horizontalLength; indexH++) {
         groundGridCells.push({ x: indexH, y: indexV });   
     }
 }
-console.log(groundGridCells);
+
 
 function moveRover(currentDirection, currentPosition, actionDirection, actionPosition) {
-    if (actionDirection == 1, actionDirection == 2) {
+    if (actionDirection == 1 || actionDirection == 2) {
         // TODO: I have created the function using a switch but it does not convince me, since in this case I know the number of addresses and their peculiarities compared to the index array but I think I can debug it in a way that is more efficient for movement in general.
         switch (directions.indexOf(currentDirection)) {
             case 0:
                 if (actionDirection == 1) {
+                    console.log(actionDirection);
                     rover.direction = directions[directions.length - 1];
                 } else {
                     rover.direction = directions[directions.indexOf(currentDirection)+1];
@@ -45,6 +46,7 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
             case 1:
             case 2:
                 if (actionDirection == 1) {
+                    console.log(actionDirection);
                     rover.direction = directions[directions.indexOf(currentDirection)-1];
                 } else {
                     rover.direction = directions[directions.indexOf(currentDirection)+1];
@@ -53,6 +55,7 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                 break;
             case 3:
                 if (actionDirection == 1) {
+                    console.log(actionDirection);
                     rover.direction = directions[directions.indexOf(currentDirection)-1];
                 } else {
                     rover.direction = directions[0];
@@ -71,16 +74,16 @@ function checkKey(e) {
     
     switch (event.keyCode) {
         case 38:
-            moveRover(rover.direction, rover.position, 0, 1);
+            moveRover(null, rover.position, null, 1);
             break;
         case 40:
-            moveRover(rover.direction, rover.position, 0, 2);
+            moveRover(null, rover.position, null, 2);
             break;
         case 37:
-            moveRover(rover.direction, rover.position, 1, 0);
+            moveRover(rover.direction, null, 1, null);
             break;
         case 39:
-            moveRover(rover.direction, rover.position, 2, 0);
+            moveRover(rover.direction, null, 2, null);
             break;
         default:
             break;
