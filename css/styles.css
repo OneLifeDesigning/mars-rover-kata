@@ -1,4 +1,81 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins:300');
 html,
 body {
+    font-family: 'Poppins';
+    font-weight: 300;
     background-color: #434343;
+    padding: 0;
+    margin: 0;
+}
+
+header {
+    margin: 0;
+}
+
+header h1 {
+    text-align: center;
+    font-size: 1.875rem;
+    margin: 0;
+    background-color: black;
+    color: #f2f2f2;
+}
+
+main {
+    overflow: hidden;
+}
+
+main,
+#matrix {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+#matrix {
+    padding: 5px 5px 0px;
+}
+
+#leftPanel {
+    background-color: rgba(255, 255, 255, .3);
+}
+
+#matrix {
+    position: relative;
+    background-color: rgba(255, 255, 255, .4);
+    border-right: 1px solid #999;
+    border-left: 1px solid #999;
+}
+
+#matrix div {
+    flex-grow: 0;
+    order: 10;
+    text-align: center;
+    display: table;
+    vertical-align: middle;
+    border: 1px solid;
+}
+
+#matrix div {
+    position: relative;
+}
+
+#matrix div div.rover {
+    position: absolute;
+    border: 0px solid;
+}
+
+#matrix div div.rover span {
+    font-size: .86rem;
+    line-height: .86rem;
+}
+
+#matrix div h4 {
+    font-size: .64rem;
+    text-align: left;
+    padding: 0;
+    margin: 0;
+}
+
+#rightPanel {
+    background-color: rgba(255, 255, 255, .1);
 }
