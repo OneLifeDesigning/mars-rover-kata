@@ -9,22 +9,55 @@ body {
 }
 
 header {
-    margin: 0;
+    display: flex;
+    justify-content: center;
+    padding: 0.313rem 0;
+    color: #f2f2f2;
 }
 
 header h1 {
     text-align: center;
     font-size: 1.875rem;
+}
+
+header h1,
+header h3,
+header p {
     margin: 0;
-    background-color: black;
-    color: #f2f2f2;
+    padding: 0 1rem;
+    line-height: 3.563rem;
+}
+
+header p small {
+    font-size: 60%;
+}
+
+header form {
+    display: flex;
+}
+
+header form input {
+    font-weight: 400;
+    font-size: 1.2rem;
+    color: #222;
+    border: 0 none;
+    padding-right: 1rem;
+    padding-left: 1rem;
+}
+
+header form button {
+    border: 0 none;
+    font-weight: 700;
+    background-color: #eee;
 }
 
 main {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
     overflow: hidden;
 }
 
-main,
 #matrix {
     display: flex;
     justify-content: space-between;
@@ -33,10 +66,6 @@ main,
 
 #matrix {
     padding: 5px 5px 0px;
-}
-
-#leftPanel {
-    background-color: rgba(255, 255, 255, .3);
 }
 
 #matrix {
@@ -62,11 +91,81 @@ main,
 #matrix div div.rover {
     position: absolute;
     border: 0px solid;
+    border-radius: 100%;
+    font-size: .86rem;
+    line-height: .86rem;
+    display: block;
 }
 
 #matrix div div.rover span {
     font-size: .86rem;
-    line-height: .86rem;
+    line-height: 1.563rem;
+    position: relative;
+}
+
+#matrix div div.rover.error {
+    animation: colorchange 1s linear;
+    -webkit-animation: colorchange 1s linear;
+}
+
+#matrix div div.rover.error span.w::before,
+#matrix div div.rover.error span.s::before,
+#matrix div div.rover.error span.n::before,
+#matrix div div.rover.error span.e::before {
+    content: "\002716";
+    color: #F30;
+}
+
+@keyframes colorchange {
+    0% {
+        background: #F30;
+    }
+    50% {
+        background: #222;
+    }
+    100% {
+        background: #F30;
+    }
+}
+
+@-webkit-keyframes colorchange {
+    0% {
+        background: #F30;
+    }
+    50% {
+        background: #222;
+    }
+    100% {
+        background: #F30;
+    }
+}
+
+#matrix div div.rover span.w::before {
+    content: "\002190";
+    position: absolute;
+    left: -23px;
+    top: 0px;
+}
+
+#matrix div div.rover span.s::before {
+    content: "\002193";
+    position: absolute;
+    left: 0px;
+    bottom: -23px;
+}
+
+#matrix div div.rover span.n::before {
+    content: "\002191";
+    position: absolute;
+    left: 0px;
+    top: -23px;
+}
+
+#matrix div div.rover span.e::before {
+    content: "\002192";
+    position: absolute;
+    right: -23px;
+    top: -2px;
 }
 
 #matrix div h4 {
@@ -74,8 +173,4 @@ main,
     text-align: left;
     padding: 0;
     margin: 0;
-}
-
-#rightPanel {
-    background-color: rgba(255, 255, 255, .1);
 }

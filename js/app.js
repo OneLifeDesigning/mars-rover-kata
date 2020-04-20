@@ -10,8 +10,7 @@ let matrixGrid = {
 let windowX = window.innerWidth;
 let windowY = window.innerHeight;
 
-
-// Creo una condición para hacer que el elemto padre de las celdas sea cuadrado 
+// Creo una condición con las medidas para obtener la menor y asegurarme la matriz cabe en la pantalla
 let maxSize;
 
 if (windowY > windowX) {
@@ -19,15 +18,21 @@ if (windowY > windowX) {
 } else {
     maxSize = windowY;
 }
-// Limito el tamaño máxiomo para dejar espacio al header
-// TODO: Queda pendiente tomar el tamaño real del header
-maxSize = maxSize-50;
+
+//  Para obtener el máximo posible de espacio de matriz resto el espacio que ocupa el header
+let header = document.getElementsByTagName("header");
+
+let headerH = header[0].offsetHeight;
+
+maxSize = (maxSize-headerH)-10;
+
+// TODO: Si hubiera más objetos ocupando espacio tendríamos que añadirlos dependiendo las los tamaños de pantalla.
 
 // Objeto con las propiedades base de las celdas
 let cellProperties = { 
-    // Ajusto el alto y ancho al al
-    width: (maxSize/matrixGrid.xCells)-7,
-    height: (maxSize/matrixGrid.yCells)-7,
+    // Ajusto el alto y ancho de las celdas de la matriz tomando el máximo posible dividiendolo entre el número de celdas y le resto unos píxeles para dejar márgenes entre ellas
+    width: (maxSize/matrixGrid.xCells)-6,
+    height: (maxSize/matrixGrid.yCells)-6,
     bgColor: "#eaeaea",
     borderColor: "#f5f5f5"
 }
@@ -36,18 +41,18 @@ let cellProperties = {
 // TODO: Tendré que cambiarlo para hacer que puedan ser varios rover de forma simultanea
 let rover = {
     name: "Serenity 1",
-    sulg: "serenity-1",
-    width: "20",
-    height: "20",
+    slug: "serenity-1",
+    width: 25,
+    height: 25,
     bgColor: "#F30",
     borderColor: "#f2f2f2",
     // Posicionamos el elemento
-    top: ((maxSize/matrixGrid.yCells)-30)/2,
+    top: ((maxSize/matrixGrid.yCells)-20)/2,
     right: ((maxSize/matrixGrid.yCells)-30)/2,
     bottom: ((maxSize/matrixGrid.yCells)-30)/2,
     left: ((maxSize/matrixGrid.yCells)-30)/2,
     // Valores inciales de dirección y posición
-    direction: "N",
+    direction: "E",
     position: {x: 0, y:0}
 };
 
@@ -202,17 +207,27 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
     }
 }
 
-function moveRoverDOM(rover) {
-    // Elimino el rover de donde está
-    if(document.getElementById(rover.slug) != null) {
-        document.getElementById(rover.slug).remove();
+function moveRoverDOM(rover, error) {
+    let roverSeleted = document.getElementById(rover.slug);
+    if (error == 1) {
+        // Quitamos y ponemos la clase 
+        roverSeleted.classList.add('error');
+            setTimeout(() => {
+                roverSeleted.classList.remove('error');
+            }, 1000);
+    } else {
+        // Elimino el rover de donde está para actualizarlo con los nuevos datos.
+        if(roverSeleted != null) {
+            roverSeleted.remove();
+        }
+        // Incluimos el rover en la nueva posición
+        document.querySelector('[data-x="'+rover.position.x+'"][data-y="'+rover.position.y+'"]').innerHTML +=  '<div id="'+rover.slug+'" class="rover" style="width:'+rover.width+'px; height:'+rover.height+'px; border-color:'+rover.borderColor+'; background-color:'+rover.bgColor+'; bottom:'+rover.bottom+'px; top:'+rover.top+'px; left:'+rover.left+'px; right:'+rover.right+'px;"><span class="'+rover.direction.toLowerCase()+'">'+rover.direction+'</span></div>';
     }
-    // Incluimos el rover en la nueva posición
-    document.querySelector('[data-x="'+rover.position.x+'"][data-y="'+rover.position.y+'"]').innerHTML +=  '<div id="'+rover.slug+'" class="rover" style="width:'+rover.width+'px; height:'+rover.height+'px; border-color:'+rover.borderColor+'; background-color:'+rover.bgColor+'; bottom:'+rover.bottom+'px; top:'+rover.top+'px; left:'+rover.left+'px; right:'+rover.right+'px;"><span class="'+rover.direction.toLowerCase()+'">'+rover.direction+'</span></div>';
 }
 // 04 // ERRORES Y LOG
 // MENSAJE EN CONSOLA CUANDO EL ROVER SALE FUERA DE LA MATRIZ O SE EJECUTA UNA ORDEN
 function errorMove(msg) {
+    moveRoverDOM(rover, 1);
     console.log(msg);
 }
 
@@ -230,8 +245,16 @@ function logMove(actionMove, typeMove) {
 // 05 // ACCIONES DE USUARIO
 
 // CAPTURA LAS ACCIONES DEL USUARIO PRESIONANDO TECLAS DE DIRECCIÓN DEL TECLADO
+window.addEventListener("submit", function () {
+    let instructionsMove = document.getElementById('instructions').value;
+    let instructionsMoveArray = [];
+    
+    for (let index = 0; index < instructionsMove.length; index++) {
+        instructionsMoveArray += [index],[instructionsMove[index]];
+    }
+    console.log(instructionsMoveArray);    
+}, true);
 window.addEventListener("keydown", function (event) {
-  
     if (event.key !== undefined) {
       // Handle the event with KeyboardEvent.key and set handled true.
       switch (event.keyCode) {
