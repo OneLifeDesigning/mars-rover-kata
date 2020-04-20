@@ -87,6 +87,8 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                 } else {
                     rover.direction = directions[directions.indexOf(currentDirection)+1];
                 }
+                // Actualizamos los cambios del rover en el DOM
+                moveRoverDOM(rover);
                 // Mandamos los datos de cambio de dirección al registro
                 logMove(rover.direction, "changeDirection");
                 break;
@@ -97,6 +99,7 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                 } else {
                     rover.direction = directions[directions.indexOf(currentDirection)+1];
                 }
+                moveRoverDOM(rover);
                 logMove(rover.direction, "changeDirection");
                 break;
             case 3:
@@ -105,6 +108,7 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                 } else {
                     rover.direction = directions[0];
                 }
+                moveRoverDOM(rover);
                 logMove(rover.direction, "changeDirection");
                 break;
         }
@@ -123,7 +127,7 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                         moveRoverDOM(rover);
                     }
                 } else {
-                    if (currentPosition.y+1 <= matrixGrid.yCells) {
+                    if (currentPosition.y+1 < matrixGrid.yCells) {
                         rover.position.y = currentPosition.y+1;
                         moveRoverDOM(rover);
                     } else {
@@ -135,13 +139,13 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
             case "E":
                 // Cuando la dirección es Este al recibir el valor 1 avanza (suma) y con el valor 2 retrocede (resta) en el eje X
                 if (actionPosition == 1) {
-                    if (currentPosition.x+1 <= matrixGrid.xCells) {
+                    if (currentPosition.x+1 < matrixGrid.xCells) {
                         rover.position.x = currentPosition.x+1;
                         moveRoverDOM(rover);
                     } else {
                         errorMove("ROVER FORWARD go over the grid");
                     }
-                } else {
+                } else {                    
                     if (currentPosition.x-1 < 0) {
                         errorMove("ERROR BACKWARD ROVER go over the grid");
                     } else {
@@ -154,14 +158,14 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
             case "S":
                 if (actionPosition == 1) {
                     // Creo condición para que al sumar no se pueda salir de la matriz calculando si el valor sumado es igual o menor que el total de celdas 
-                    if (currentPosition.y+1 <= matrixGrid.yCells) {
+                    if (currentPosition.y+1 < matrixGrid.yCells) {
                         rover.position.y = currentPosition.y+1;
                         moveRoverDOM(rover);
                     } else {
                         errorMove("ROVER FORWARD go over the grid");
                     }
                 } else {
-                    if (currentPosition.x-1 < 0) {
+                    if (currentPosition.y-1 < 0) {
                         errorMove("ERROR BACKWARD ROVER go over the grid");
                     } else {
                         rover.position.y = currentPosition.y-1;
@@ -180,7 +184,7 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                         moveRoverDOM(rover);
                     }
                 } else {
-                    if (currentPosition.x+1 <= matrixGrid.xCells) {
+                    if (currentPosition.x+1 < matrixGrid.xCells) {
                         rover.position.x = currentPosition.x+1;
                         moveRoverDOM(rover);
                     } else {
