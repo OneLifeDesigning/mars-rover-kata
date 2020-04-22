@@ -75,6 +75,10 @@ main {
     border-left: 1px solid #999;
 }
 
+#matrix div.active {
+    background-color: green;
+}
+
 #matrix div {
     flex-grow: 0;
     order: 10;
@@ -114,6 +118,7 @@ main {
 #matrix div div.rover.error span.e::before {
     content: "\002716";
     color: #F30;
+    z-index: 2;
 }
 
 @keyframes colorchange {
@@ -140,30 +145,34 @@ main {
     }
 }
 
+#matrix div div.rover span.w::before,
+#matrix div div.rover span.s::before,
+#matrix div div.rover span.n::before,
+#matrix div div.rover span.e::before {
+    z-index: 2;
+    position: absolute;
+}
+
 #matrix div div.rover span.w::before {
     content: "\002190";
-    position: absolute;
     left: -23px;
     top: 0px;
 }
 
 #matrix div div.rover span.s::before {
     content: "\002193";
-    position: absolute;
     left: 0px;
     bottom: -23px;
 }
 
 #matrix div div.rover span.n::before {
     content: "\002191";
-    position: absolute;
     left: 0px;
     top: -23px;
 }
 
 #matrix div div.rover span.e::before {
     content: "\002192";
-    position: absolute;
     right: -23px;
     top: -2px;
 }

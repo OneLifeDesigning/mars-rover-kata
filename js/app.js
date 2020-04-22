@@ -69,12 +69,8 @@ for (let indexY = 0; indexY < matrixGrid.yCells; indexY++) {
     for (let indexX = 0; indexX < matrixGrid.xCells; indexX++) {
         // Incluyo en la matriz un array con los valores de los dos index
         matrix.push([indexX, indexY ]);
-        // Pintamos en el DOM una celda por cada registro
+        // Cargamos en el DOM una celda por cada registro
         document.getElementById('matrix').innerHTML += '<div data-x='+indexX+' data-y='+indexY+' style="width:'+cellProperties.width+'px; height:'+cellProperties.height+'px; border-color:'+cellProperties.borderColor+'; background-color:'+cellProperties.bgColor+';"><h4>['+indexX+' - '+indexY+']</h4></div>';
-    }
-    // Renderizo el rover cunado se esté almacenado en la matriz y creado el objeto del DOM la última de las celdas 
-    if (indexY === matrixGrid.xCells-1) {
-        moveRoverDOM(rover);
     }
 }
 
@@ -93,7 +89,7 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                     rover.direction = directions[directions.indexOf(currentDirection)+1];
                 }
                 // Actualizamos los cambios del rover en el DOM
-                moveRoverDOM(rover);
+                updateRoverDOM(rover);
                 // Mandamos los datos de cambio de dirección al registro
                 logMove(rover.direction, "changeDirection");
                 break;
@@ -104,7 +100,7 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                 } else {
                     rover.direction = directions[directions.indexOf(currentDirection)+1];
                 }
-                moveRoverDOM(rover);
+                updateRoverDOM(rover);
                 logMove(rover.direction, "changeDirection");
                 break;
             case 3:
@@ -113,7 +109,7 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                 } else {
                     rover.direction = directions[0];
                 }
-                moveRoverDOM(rover);
+                updateRoverDOM(rover);
                 logMove(rover.direction, "changeDirection");
                 break;
         }
@@ -129,12 +125,12 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                         errorMove("ERROR BACKWARD ROVER go over the grid");
                     } else {
                         rover.position.y = currentPosition.y-1;
-                        moveRoverDOM(rover);
+                        updateRoverDOM(rover);
                     }
                 } else {
                     if (currentPosition.y+1 < matrixGrid.yCells) {
                         rover.position.y = currentPosition.y+1;
-                        moveRoverDOM(rover);
+                        updateRoverDOM(rover);
                     } else {
                         errorMove("ROVER FORWARD go over the grid");
                     }
@@ -146,7 +142,7 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                 if (actionPosition == 1) {
                     if (currentPosition.x+1 < matrixGrid.xCells) {
                         rover.position.x = currentPosition.x+1;
-                        moveRoverDOM(rover);
+                        updateRoverDOM(rover);
                     } else {
                         errorMove("ROVER FORWARD go over the grid");
                     }
@@ -155,7 +151,7 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                         errorMove("ERROR BACKWARD ROVER go over the grid");
                     } else {
                         rover.position.x = currentPosition.x-1;
-                        moveRoverDOM(rover);
+                        updateRoverDOM(rover);
                     }
                 }
                 logMove(rover.position, "changePosition");
@@ -165,7 +161,7 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                     // Creo condición para que al sumar no se pueda salir de la matriz calculando si el valor sumado es igual o menor que el total de celdas 
                     if (currentPosition.y+1 < matrixGrid.yCells) {
                         rover.position.y = currentPosition.y+1;
-                        moveRoverDOM(rover);
+                        updateRoverDOM(rover);
                     } else {
                         errorMove("ROVER FORWARD go over the grid");
                     }
@@ -174,7 +170,7 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                         errorMove("ERROR BACKWARD ROVER go over the grid");
                     } else {
                         rover.position.y = currentPosition.y-1;
-                        moveRoverDOM(rover);
+                        updateRoverDOM(rover);
                     }
                 }
                 logMove(rover.position, "changePosition");
@@ -186,12 +182,12 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                         errorMove("ERROR BACKWARD ROVER go over the grid");
                     } else {
                         rover.position.x = currentPosition.x-1;
-                        moveRoverDOM(rover);
+                        updateRoverDOM(rover);
                     }
                 } else {
                     if (currentPosition.x+1 < matrixGrid.xCells) {
                         rover.position.x = currentPosition.x+1;
-                        moveRoverDOM(rover);
+                        updateRoverDOM(rover);
                     } else {
                         errorMove("ROVER FORWARD go over the grid");
                     }
@@ -207,7 +203,7 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
     }
 }
 
-function moveRoverDOM(rover, error) {
+function updateRoverDOM(rover, error) {
     let roverSeleted = document.getElementById(rover.slug);
     if (error == 1) {
         // Quitamos y ponemos la clase 
@@ -217,17 +213,86 @@ function moveRoverDOM(rover, error) {
             }, 1000);
     } else {
         // Elimino el rover de donde está para actualizarlo con los nuevos datos.
+        //  Creo una condición para que si es diferente de nulo lo borre, nulo sera la primera vez que se inicia 
         if(roverSeleted != null) {
             roverSeleted.remove();
         }
+        // Actualizamos la marca de las celdas siguientes donde se va a mover el rover
+        nextCellDOM(rover);
         // Incluimos el rover en la nueva posición
         document.querySelector('[data-x="'+rover.position.x+'"][data-y="'+rover.position.y+'"]').innerHTML +=  '<div id="'+rover.slug+'" class="rover" style="width:'+rover.width+'px; height:'+rover.height+'px; border-color:'+rover.borderColor+'; background-color:'+rover.bgColor+'; bottom:'+rover.bottom+'px; top:'+rover.top+'px; left:'+rover.left+'px; right:'+rover.right+'px;"><span class="'+rover.direction.toLowerCase()+'">'+rover.direction+'</span></div>';
     }
 }
+
+// Actualizar celda siguiente que moverá el rover en la matriz
+
+// Defino la variable oldCell para que almacene de forma global el valor de la anterior posición activa y la actualize cuando haya una nueva celda 
+let oldCell;
+
+function nextCellDOM(currentRover) {
+    let nextCell;
+    switch (currentRover.direction) {
+        case "N":
+            if (oldCell != null) {
+                oldCell.style.backgroundColor = '#eaeaea';
+            }
+            
+            nextCell = document.querySelector('[data-x="'+(currentRover.position.x)+'"][data-y="'+(currentRover.position.y-1)+'"]');      
+
+            if (nextCell != null) {
+                nextCell.style.backgroundColor = 'green';
+                oldCell = nextCell;
+            }
+            break;
+    
+        case "E":
+            if (oldCell != null) {
+                oldCell.style.backgroundColor = '#eaeaea';
+            }
+            
+            nextCell = document.querySelector('[data-x="'+(currentRover.position.x+1)+'"][data-y="'+currentRover.position.y+'"]');      
+
+            if (nextCell != null) {
+                nextCell.style.backgroundColor = 'green';
+                oldCell = nextCell;
+            }
+            break;
+        
+        case "S":
+            if (oldCell != null) {
+                oldCell.style.backgroundColor = '#eaeaea';
+            }
+            
+            nextCell = document.querySelector('[data-x="'+currentRover.position.x+'"][data-y="'+(currentRover.position.y+1)+'"]');      
+
+            if (nextCell != null) {
+                nextCell.style.backgroundColor = 'green';
+                oldCell = nextCell;
+            }
+            break;
+        
+        case "W":
+            if (oldCell != null) {
+                oldCell.style.backgroundColor = '#eaeaea';
+            }
+            
+            nextCell = document.querySelector('[data-x="'+(currentRover.position.x-1)+'"][data-y="'+currentRover.position.y+'"]');      
+
+            if (nextCell != null) {
+                nextCell.style.backgroundColor = 'green';
+                oldCell = nextCell;
+            }
+            break;
+        default:
+            break;
+    }
+
+}
+
 // 04 // ERRORES Y LOG
 // MENSAJE EN CONSOLA CUANDO EL ROVER SALE FUERA DE LA MATRIZ O SE EJECUTA UNA ORDEN
 function errorMove(msg) {
-    moveRoverDOM(rover, 1);
+    updateRoverDOM(rover, 1);
     console.log(msg);
 }
 
@@ -244,16 +309,37 @@ function logMove(actionMove, typeMove) {
 
 // 05 // ACCIONES DE USUARIO
 
-// CAPTURA LAS ACCIONES DEL USUARIO PRESIONANDO TECLAS DE DIRECCIÓN DEL TECLADO
 window.addEventListener("submit", function () {
     let instructionsMove = document.getElementById('instructions').value;
-    let instructionsMoveArray = [];
     
     for (let index = 0; index < instructionsMove.length; index++) {
-        instructionsMoveArray += [index],[instructionsMove[index]];
+        let instruction = instructionsMove[index].toUpperCase();
+        switch (instruction) {
+            case "F":
+                moveRover(rover.direction, rover.position, null, 1);
+            break;
+            
+            case "R":
+                moveRover(rover.direction, null, 2, null);
+                break;
+                
+            case "B":
+                moveRover(rover.direction, rover.position, null, 2);
+                break;
+
+            case "L":
+                moveRover(rover.direction, null, 1, null);
+                break;
+        
+            default:
+                console.log(instruction+": Are Unknown Instrusction");            
+                break;
+        }
     }
-    console.log(instructionsMoveArray);    
 }, true);
+
+
+// CAPTURA LAS ACCIONES DEL USUARIO PRESIONANDO TECLAS DE DIRECCIÓN DEL TECLADO
 window.addEventListener("keydown", function (event) {
     if (event.key !== undefined) {
       // Handle the event with KeyboardEvent.key and set handled true.
@@ -276,8 +362,11 @@ window.addEventListener("keydown", function (event) {
     }
   }, true);
 
-// CARGO LA MATRIZ EN EL DOOM
+// Cargo los elemntos del DOM
 function loadDOM() {
+    // Buscamos el id del paadre 
     document.getElementById('matrix').style.cssText = 'width:'+maxSize+'px; height:'+maxSize+'px';
+
+    updateRoverDOM(rover);
 }
 window.onload = loadDOM();
