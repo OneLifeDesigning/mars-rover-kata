@@ -39,8 +39,8 @@ let cellProperties = {
 }
 
 let terrain = {
-    hard: 65,
-    medium: 35,
+    hard: 60,
+    medium: 40,
     easy: 15
 }
 
@@ -75,22 +75,27 @@ let matrix = [];
 // Creo un doble bucle que recorre y almacena los valores matrixGrid.xCells y matrixGrid.yCells
 for (let indexY = 0; indexY < matrixGrid.yCells; indexY++) {
     for (let indexX = 0; indexX < matrixGrid.xCells; indexX++) {
+        // BONUS: Para los obstaculos creo la variable access que almacenara si se puede o no acceder y tambien el color que tendra en el DOM cada celda dependiendo de su estado de acceso
         let access, bgCell;
-        let rand = Math.floor(Math.random() * (matrixGrid.xCells*matrixGrid.yCells)/2) + 1;
-        console.log(rand, terrain.medium);
         
-        if (rand <= terrain.medium) {
-            access = 1;
-            bgCell = cellProperties.bgColor;
-        } else {
+        // Aquí creo un random de la cantidad de celdas que hay en total
+        let rand = Math.floor(Math.random() * matrixGrid.xCells*matrixGrid.yCells);
+        
+        // Aquí comparamos el rand con eltipo de terreno que es lo que nos devuelve el objeto terrain el cual molaria seleccionarlo aleatoriamente al cargar. Y tambien decimos que no sea ni el eje X0 ni Y0 para poder mover el rover. Nota: Esto se puede evitar creando una función que al cargar el rover por primera vez vea la celda en la que va a cargar y si no es accesible ninguna accesible a su alrededor ejecute un bucle for desplazandolo hasta que encuentre una accesible pero tampoco garantizaría que el rover pudiera moverse ya que el random podría crear un punto accesible rodeado de no accesibles y digo yo que los señores de la NASA no lo mandarían aterrizar en un crater si no tiene forma de ir más allá en todo caso, si se podría dar la situación y la missión hubiera sido un fracaso total XD.
+        
+        if (rand <= terrain.medium && indexY != 0 && indexX != 0) {
             access = 0;
             bgCell = cellProperties.bgNoAccess;
+        } else {
+            access = 1;
+            bgCell = cellProperties.bgColor;
         }
+
         // Incluyo en la matriz un array con los valores de los dos index
         matrix.push([indexX, indexY, access ]);
+
         // Cargamos en el DOM una celda por cada registro
-        
-        document.getElementById('matrix').innerHTML += '<div data-x='+indexX+' data-y='+indexY+' style="width:'+cellProperties.width+'px; height:'+cellProperties.height+'px; border-color:'+cellProperties.borderColor+';'+'background-color:'+bgCell+';"><h4>['+indexX+' - '+indexY+']</h4></div>';
+        document.getElementById('matrix').innerHTML += '<div data-access='+access+' data-x='+indexX+' data-y='+indexY+' style="width:'+cellProperties.width+'px; height:'+cellProperties.height+'px; border-color:'+cellProperties.borderColor+';'+'background-color:'+bgCell+';"><h4>['+indexX+' - '+indexY+']</h4></div>';
     }
 }
 
@@ -110,7 +115,7 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                     rover.direction = directions[directions.indexOf(currentDirection)+1];
                 }
                 // Actualizamos los cambios del rover en el DOM
-                updateRoverDOM(rover);
+                updateRoverDOM(rover, 0);
                 // Mandamos los datos de cambio de dirección al registro
                 logMove(rover.direction, "changeDirection");
                 break;
@@ -121,7 +126,7 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                 } else {
                     rover.direction = directions[directions.indexOf(currentDirection)+1];
                 }
-                updateRoverDOM(rover);
+                updateRoverDOM(rover, 0);
                 logMove(rover.direction, "changeDirection");
                 break;
             case 3:
@@ -130,95 +135,101 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
                 } else {
                     rover.direction = directions[0];
                 }
-                updateRoverDOM(rover);
+                updateRoverDOM(rover, 0);
                 logMove(rover.direction, "changeDirection");
                 break;
         }
     // Si los valores recibidos en la acción de posición son los correctos ejecuto la evalución
     } else if (actionPosition == 1 || actionPosition == 2)  {
-        // Utilizo la direción actual del rover para saber que comando se va a ejecutar según la orden recibida
-        switch (currentDirection) {
-            // Cuando la dirección es Norte al recibir el valor 1 avanza (suma) y con el valor 2 retrocede (resta) en el eje Y
-            case "N":
-                // Cuando la dirección es Sur al recibir el valor 1 avanza (resta) y con el valor 2 retrocede (suma) en el eje Y
-                if (actionPosition == 1) {
-                    if (currentPosition.y-1 < 0) {
-                        errorMove("ERROR BACKWARD ROVER go over the grid");
+        // Antes de mover el rover deberiamos saber si la siguiente celda es accesible obtenemos su destino chequeo que se pueda mover y ejecuto las acciones
+        if (nextCell != null && nextCell.getAttribute('data-access') == 1) {
+            // Utilizo la direción actual del rover para saber que comando se va a ejecutar según la orden recibida
+            switch (currentDirection) {
+                // Cuando la dirección es Norte al recibir el valor 1 avanza (suma) y con el valor 2 retrocede (resta) en el eje Y
+                case "N":
+                    if (actionPosition == 1) {
+                        if (currentPosition.y-1 < 0) {
+                            errorMove("ERROR BACKWARD ROVER go over the grid");
+                        } else {
+                            rover.position.y = currentPosition.y-1;
+                            updateRoverDOM(rover, 0);
+                        }
                     } else {
-                        rover.position.y = currentPosition.y-1;
-                        updateRoverDOM(rover);
+                        if (currentPosition.y+1 < matrixGrid.yCells) {
+                            rover.position.y = currentPosition.y+1;
+                            updateRoverDOM(rover, 0);
+                        } else {
+                            errorMove("ROVER FORWARD go over the grid");
+                        }
                     }
-                } else {
-                    if (currentPosition.y+1 < matrixGrid.yCells) {
-                        rover.position.y = currentPosition.y+1;
-                        updateRoverDOM(rover);
+                    logMove(rover.position, "changePosition");
+                    break;                
+                case "E":
+                    // Cuando la dirección es Este al recibir el valor 1 avanza (suma) y con el valor 2 retrocede (resta) en el eje X
+                    if (actionPosition == 1) {
+                        if (currentPosition.x+1 < matrixGrid.xCells) {
+                            rover.position.x = currentPosition.x+1;
+                            updateRoverDOM(rover, 0);
+                        } else {
+                            errorMove("ROVER FORWARD go over the grid");
+                        }
+                    } else {                    
+                        if (currentPosition.x-1 < 0) {
+                            errorMove("ERROR BACKWARD ROVER go over the grid");
+                        } else {
+                            rover.position.x = currentPosition.x-1;
+                            updateRoverDOM(rover, 0);
+                        }
+                    }
+                    logMove(rover.position, "changePosition");
+                    break;
+                case "S":
+                    // Cuando la dirección es Sur al recibir el valor 1 avanza (resta) y con el valor 2 retrocede (suma) en el eje Y
+                    if (actionPosition == 1) {
+                        // Creo condición para que al sumar no se pueda salir de la matriz calculando si el valor sumado es igual o menor que el total de celdas 
+                        if (currentPosition.y+1 < matrixGrid.yCells) {
+                            rover.position.y = currentPosition.y+1;
+                            updateRoverDOM(rover, 0);
+                        } else {
+                            errorMove("ROVER FORWARD go over the grid");
+                        }
                     } else {
-                        errorMove("ROVER FORWARD go over the grid");
+                        // Creo condición para que al sumar no se pueda salir de la matriz calculando si el valor sumado es igual o menor que el total de celdas 
+                        if (currentPosition.y-1 < 0) {
+                            errorMove("ERROR BACKWARD ROVER go over the grid");
+                        } else {
+                            rover.position.y = currentPosition.y-1;
+                            updateRoverDOM(rover, 0);
+                        }
                     }
-                }
-                logMove(rover.position, "changePosition");
-                break;                
-            case "E":
-                // Cuando la dirección es Este al recibir el valor 1 avanza (suma) y con el valor 2 retrocede (resta) en el eje X
-                if (actionPosition == 1) {
-                    if (currentPosition.x+1 < matrixGrid.xCells) {
-                        rover.position.x = currentPosition.x+1;
-                        updateRoverDOM(rover);
+                    logMove(rover.position, "changePosition");
+                    break;
+                case "W":
+                    // Cuando la dirección es Oeste al recibir el valor 1 avanza (resta) y con el valor 2 retrocede (suma) en el eje X
+                    if (actionPosition == 1) {
+                        if (currentPosition.x-1 < 0) {
+                            errorMove("ERROR BACKWARD ROVER go over the grid");
+                        } else {
+                            rover.position.x = currentPosition.x-1;
+                            updateRoverDOM(rover, 0);
+                        }
                     } else {
-                        errorMove("ROVER FORWARD go over the grid");
+                        if (currentPosition.x+1 < matrixGrid.xCells) {
+                            rover.position.x = currentPosition.x+1;
+                            updateRoverDOM(rover, 0);
+                        } else {
+                            errorMove("ROVER FORWARD go over the grid");
+                        }
                     }
-                } else {                    
-                    if (currentPosition.x-1 < 0) {
-                        errorMove("ERROR BACKWARD ROVER go over the grid");
-                    } else {
-                        rover.position.x = currentPosition.x-1;
-                        updateRoverDOM(rover);
-                    }
-                }
-                logMove(rover.position, "changePosition");
-                break;
-            case "S":
-                if (actionPosition == 1) {
-                    // Creo condición para que al sumar no se pueda salir de la matriz calculando si el valor sumado es igual o menor que el total de celdas 
-                    if (currentPosition.y+1 < matrixGrid.yCells) {
-                        rover.position.y = currentPosition.y+1;
-                        updateRoverDOM(rover);
-                    } else {
-                        errorMove("ROVER FORWARD go over the grid");
-                    }
-                } else {
-                    if (currentPosition.y-1 < 0) {
-                        errorMove("ERROR BACKWARD ROVER go over the grid");
-                    } else {
-                        rover.position.y = currentPosition.y-1;
-                        updateRoverDOM(rover);
-                    }
-                }
-                logMove(rover.position, "changePosition");
-                break;
-            case "W":
-                // Cuando la dirección es Oeste al recibir el valor 1 avanza (resta) y con el valor 2 retrocede (suma) en el eje X
-                if (actionPosition == 1) {
-                    if (currentPosition.x-1 < 0) {
-                        errorMove("ERROR BACKWARD ROVER go over the grid");
-                    } else {
-                        rover.position.x = currentPosition.x-1;
-                        updateRoverDOM(rover);
-                    }
-                } else {
-                    if (currentPosition.x+1 < matrixGrid.xCells) {
-                        rover.position.x = currentPosition.x+1;
-                        updateRoverDOM(rover);
-                    } else {
-                        errorMove("ROVER FORWARD go over the grid");
-                    }
-                }
-                logMove(rover.position, "changePosition");
-                break;
-        
-            default:
-                break;
-        }   
+                    logMove(rover.position, "changePosition");
+                    break;
+            
+                default:
+                    break;
+            }   
+        } else {
+            updateRoverDOM(rover, 1);
+        }
     } else {
         errorMove("Unknown Command");
     }
@@ -227,11 +238,11 @@ function moveRover(currentDirection, currentPosition, actionDirection, actionPos
 function updateRoverDOM(rover, error) {
     let roverSeleted = document.getElementById(rover.slug);
     if (error == 1) {
-        // Quitamos y ponemos la clase 
+        // Quitamos y ponemos la clase error
         roverSeleted.classList.add('error');
-            setTimeout(() => {
-                roverSeleted.classList.remove('error');
-            }, 1000);
+        setTimeout(() => {
+            roverSeleted.classList.remove('error');
+        }, 1000);
     } else {
         // Elimino el rover de donde está para actualizarlo con los nuevos datos.
         //  Creo una condición para que si es diferente de nulo lo borre, nulo sera la primera vez que se inicia 
@@ -247,20 +258,22 @@ function updateRoverDOM(rover, error) {
 
 // Actualizar celda siguiente que moverá el rover en la matriz
 
-// Defino la variable oldCell para que almacene de forma global el valor de la anterior posición activa y la actualize cuando haya una nueva celda 
+// Defino la variable oldCell de forma global en el alcance para que almacene el valor de la anterior posición activa y la actualize cuando haya una nueva celda 
 let oldCell;
 
+// Defino la variable para la celda siguien te se moverá el rover
+let nextCell;
 function nextCellDOM(currentRover) {
-    let nextCell;
+    // Creo la condiciondiciones en las que se vasará el movimiento
     switch (currentRover.direction) {
         case "N":
             nextCell = document.querySelector('[data-x="'+(currentRover.position.x)+'"][data-y="'+(currentRover.position.y-1)+'"]');
             break;
         case "E":            
-            nextCell = document.querySelector('[data-x="'+(currentRover.position.x+1)+'"][data-y="'+currentRover.position.y+'"]');      
+            nextCell = document.querySelector('[data-x="'+(currentRover.position.x+1)+'"][data-y="'+currentRover.position.y+'"]');
             break;
         case "S":
-            nextCell = document.querySelector('[data-x="'+currentRover.position.x+'"][data-y="'+(currentRover.position.y+1)+'"]');      
+            nextCell = document.querySelector('[data-x="'+currentRover.position.x+'"][data-y="'+(currentRover.position.y+1)+'"]');
             break;
         case "W":
             nextCell = document.querySelector('[data-x="'+(currentRover.position.x-1)+'"][data-y="'+currentRover.position.y+'"]');
@@ -268,23 +281,22 @@ function nextCellDOM(currentRover) {
         default:
             break;
     }
+    // Si ya se ha movido el rover la celda anterior debe volver a su anterior estado
     if (oldCell != null) {
-        console.log(oldCell.style.backgroundColor);
-        
-        if (oldCell.style.backgroundColor !== 'rgb(234, 234, 234)') {
-            oldCell.style.backgroundColor = '#eaeaea';
+        if (oldCell.getAttribute('data-access') == 1) {
+            oldCell.style.backgroundColor = cellProperties.bgColor;
         } else {
-            oldCell.style.backgroundColor = 'rgb(153, 153, 153)';
+            oldCell.style.backgroundColor = cellProperties.bgNoAccess;    
         }
     }
-    
+    // Cambiamos el elemento del DOM para ver si se puede mover o no
     if (nextCell != null) {
-        if (nextCell.style.backgroundColor === 'rgb(153, 153, 153)') {
-            nextCell.style.backgroundColor = 'red';    
-        } else {
+        if (nextCell.getAttribute('data-access') == 1) {
             nextCell.style.backgroundColor = 'green';
-            oldCell = nextCell;
-        }    
+        } else {
+            nextCell.style.backgroundColor = 'red';    
+        }
+        oldCell = nextCell;    
     }
 
 }
@@ -369,6 +381,6 @@ function loadDOM() {
     document.getElementById('matrix').style.cssText = 'width:'+maxSize+'px; height:'+maxSize+'px';
     
     // Llamamos la función para cargar el rover
-    updateRoverDOM(rover);
+    updateRoverDOM(rover, 0);
 }
 window.onload = loadDOM();
