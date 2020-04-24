@@ -32,11 +32,11 @@ header p small {
     font-size: 60%;
 }
 
-header form {
+header #formInstructions {
     display: flex;
 }
 
-header form input {
+header #formInstructions input {
     font-weight: 400;
     font-size: 1.2rem;
     color: #222;
@@ -45,7 +45,7 @@ header form input {
     padding-left: 1rem;
 }
 
-header form button {
+header #formInstructions button {
     border: 0 none;
     font-weight: 700;
     background-color: #eee;

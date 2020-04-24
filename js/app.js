@@ -34,8 +34,16 @@ let cellProperties = {
     width: (maxSize/matrixGrid.xCells)-6,
     height: (maxSize/matrixGrid.yCells)-6,
     bgColor: "#eaeaea",
+    bgNoAccess: "#999",
     borderColor: "#f5f5f5"
 }
+
+let terrain = {
+    hard: 65,
+    medium: 35,
+    easy: 15
+}
+
 
 // Objeto con las propiedades base del rover
 // TODO: Tendré que cambiarlo para hacer que puedan ser varios rover de forma simultanea
@@ -67,12 +75,25 @@ let matrix = [];
 // Creo un doble bucle que recorre y almacena los valores matrixGrid.xCells y matrixGrid.yCells
 for (let indexY = 0; indexY < matrixGrid.yCells; indexY++) {
     for (let indexX = 0; indexX < matrixGrid.xCells; indexX++) {
+        let access, bgCell;
+        let rand = Math.floor(Math.random() * (matrixGrid.xCells*matrixGrid.yCells)/2) + 1;
+        console.log(rand, terrain.medium);
+        
+        if (rand <= terrain.medium) {
+            access = 1;
+            bgCell = cellProperties.bgColor;
+        } else {
+            access = 0;
+            bgCell = cellProperties.bgNoAccess;
+        }
         // Incluyo en la matriz un array con los valores de los dos index
-        matrix.push([indexX, indexY ]);
+        matrix.push([indexX, indexY, access ]);
         // Cargamos en el DOM una celda por cada registro
-        document.getElementById('matrix').innerHTML += '<div data-x='+indexX+' data-y='+indexY+' style="width:'+cellProperties.width+'px; height:'+cellProperties.height+'px; border-color:'+cellProperties.borderColor+'; background-color:'+cellProperties.bgColor+';"><h4>['+indexX+' - '+indexY+']</h4></div>';
+        
+        document.getElementById('matrix').innerHTML += '<div data-x='+indexX+' data-y='+indexY+' style="width:'+cellProperties.width+'px; height:'+cellProperties.height+'px; border-color:'+cellProperties.borderColor+';'+'background-color:'+bgCell+';"><h4>['+indexX+' - '+indexY+']</h4></div>';
     }
 }
+
 
 // 03 // MOVIMIENTO DEL ROVER
 // Creo una función que recibe cuatro parámetros la dirección y posición del rover y las otras dos las acciones a realizar
@@ -233,58 +254,37 @@ function nextCellDOM(currentRover) {
     let nextCell;
     switch (currentRover.direction) {
         case "N":
-            if (oldCell != null) {
-                oldCell.style.backgroundColor = '#eaeaea';
-            }
-            
-            nextCell = document.querySelector('[data-x="'+(currentRover.position.x)+'"][data-y="'+(currentRover.position.y-1)+'"]');      
-
-            if (nextCell != null) {
-                nextCell.style.backgroundColor = 'green';
-                oldCell = nextCell;
-            }
+            nextCell = document.querySelector('[data-x="'+(currentRover.position.x)+'"][data-y="'+(currentRover.position.y-1)+'"]');
             break;
-    
-        case "E":
-            if (oldCell != null) {
-                oldCell.style.backgroundColor = '#eaeaea';
-            }
-            
+        case "E":            
             nextCell = document.querySelector('[data-x="'+(currentRover.position.x+1)+'"][data-y="'+currentRover.position.y+'"]');      
-
-            if (nextCell != null) {
-                nextCell.style.backgroundColor = 'green';
-                oldCell = nextCell;
-            }
             break;
-        
         case "S":
-            if (oldCell != null) {
-                oldCell.style.backgroundColor = '#eaeaea';
-            }
-            
             nextCell = document.querySelector('[data-x="'+currentRover.position.x+'"][data-y="'+(currentRover.position.y+1)+'"]');      
-
-            if (nextCell != null) {
-                nextCell.style.backgroundColor = 'green';
-                oldCell = nextCell;
-            }
             break;
-        
         case "W":
-            if (oldCell != null) {
-                oldCell.style.backgroundColor = '#eaeaea';
-            }
-            
-            nextCell = document.querySelector('[data-x="'+(currentRover.position.x-1)+'"][data-y="'+currentRover.position.y+'"]');      
-
-            if (nextCell != null) {
-                nextCell.style.backgroundColor = 'green';
-                oldCell = nextCell;
-            }
+            nextCell = document.querySelector('[data-x="'+(currentRover.position.x-1)+'"][data-y="'+currentRover.position.y+'"]');
             break;
         default:
             break;
+    }
+    if (oldCell != null) {
+        console.log(oldCell.style.backgroundColor);
+        
+        if (oldCell.style.backgroundColor !== 'rgb(234, 234, 234)') {
+            oldCell.style.backgroundColor = '#eaeaea';
+        } else {
+            oldCell.style.backgroundColor = 'rgb(153, 153, 153)';
+        }
+    }
+    
+    if (nextCell != null) {
+        if (nextCell.style.backgroundColor === 'rgb(153, 153, 153)') {
+            nextCell.style.backgroundColor = 'red';    
+        } else {
+            nextCell.style.backgroundColor = 'green';
+            oldCell = nextCell;
+        }    
     }
 
 }
@@ -309,7 +309,8 @@ function logMove(actionMove, typeMove) {
 
 // 05 // ACCIONES DE USUARIO
 
-window.addEventListener("submit", function () {
+// CAPTURA LA ACCIÓN DEL FORMULARIO DE INSTRUCCIONES
+document.getElementById('formInstructions').addEventListener("submit", function () {
     let instructionsMove = document.getElementById('instructions').value;
     
     for (let index = 0; index < instructionsMove.length; index++) {
@@ -362,11 +363,12 @@ window.addEventListener("keydown", function (event) {
     }
   }, true);
 
-// Cargo los elemntos del DOM
+// Cargo los elementos del DOM
 function loadDOM() {
-    // Buscamos el id del paadre 
+    // Buscamos el id del padre 
     document.getElementById('matrix').style.cssText = 'width:'+maxSize+'px; height:'+maxSize+'px';
-
+    
+    // Llamamos la función para cargar el rover
     updateRoverDOM(rover);
 }
 window.onload = loadDOM();
