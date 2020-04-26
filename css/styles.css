@@ -20,23 +20,27 @@ header h1 {
     font-size: 1.875rem;
 }
 
+#leftPanel {
+    color: #fefefe;
+}
+
 header h1,
-header h3,
-header p {
+#leftPanel h3,
+#leftPanel p {
     margin: 0;
     padding: 0 1rem;
     line-height: 3.563rem;
 }
 
-header p small {
+#leftPanel p small {
     font-size: 60%;
 }
 
-header #formInstructions {
+#formInstructions {
     display: flex;
 }
 
-header #formInstructions input {
+#formInstructions input {
     font-weight: 400;
     font-size: 1.2rem;
     color: #222;
@@ -45,10 +49,20 @@ header #formInstructions input {
     padding-left: 1rem;
 }
 
-header #formInstructions button {
+#formInstructions button {
     border: 0 none;
     font-weight: 700;
     background-color: #eee;
+}
+
+.radio {
+    margin-left: 1rem;
+    display: block;
+}
+
+input[type=radio] {
+    margin-right: 0.5rem;
+    display: inline-block;
 }
 
 main {
@@ -62,21 +76,12 @@ main {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-}
-
-#matrix {
+    flex-basis: 1 auto 1;
     padding: 5px 5px 0px;
-}
-
-#matrix {
     position: relative;
     background-color: rgba(255, 255, 255, .4);
     border-right: 1px solid #999;
     border-left: 1px solid #999;
-}
-
-#matrix div.active {
-    background-color: green;
 }
 
 #matrix div {
