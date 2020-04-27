@@ -10,26 +10,27 @@
 
 <body>
     <header>
-        <h1><small>Rover Mars KATA</small> Hey I´m SpititOne</h1>
+        <h1>Rover Mars KATA</h1>
     </header>
     <main>
         <div id="leftPanel">
             <h3>Move me</h3>
-            <form action="#0" id="formInstructions">
+            <form action="#0" id="instructionsForm">
                 <input id="instructions" type="text" placeholder="Insert instructions *"><button>Enviar</button>
             </form>
             <p><small>* F (Forward), B (Backward), L (Turn Left) or R (Turn right)</small></p>
+            <h2>¡¡Coming soon!!</h2>
             <h3>Change terrain type</h3>
-            <form action="" id="terrain">
+            <form action="" id="terrainForm">
             </form>
             <h3>Active/Deactive Rovers</h3>
-            <form id="roversSelect">
+            <form id="roversSelectorForm">
             </form>
+            <div id="log">
+                <p>aquí el log de movimientos</p>
+            </div>
         </div>
         <div id="matrix"></div>
-        <div id="rightPanel">
-            <button>Enviar</button>
-        </div>
     </main>
     <script src="js/app.js"></script>
 </body>

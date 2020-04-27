@@ -25,39 +25,45 @@ header h1 {
 }
 
 header h1,
-#leftPanel h3,
-#leftPanel p {
+#leftPanel h3 {
     margin: 0;
     padding: 0 1rem;
     line-height: 3.563rem;
+}
+
+#leftPanel p {
+    padding: 0 1rem;
+    line-height: 1rem;
 }
 
 #leftPanel p small {
     font-size: 60%;
 }
 
-#formInstructions {
+#instructionsForm {
     display: flex;
 }
 
-#formInstructions input {
+input {
     font-weight: 400;
     font-size: 1.2rem;
     color: #222;
     border: 0 none;
+    padding-top: .5rem;
+    padding-bottom: .5rem;
     padding-right: 1rem;
     padding-left: 1rem;
 }
 
-#formInstructions button {
+button {
     border: 0 none;
     font-weight: 700;
-    background-color: #eee;
+    color: #fff;
+    background-color: #555;
 }
 
 .radio {
     margin-left: 1rem;
-    display: block;
 }
 
 input[type=radio] {
@@ -67,7 +73,7 @@ input[type=radio] {
 
 main {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     flex-wrap: wrap;
     overflow: hidden;
 }
@@ -76,7 +82,6 @@ main {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-    flex-basis: 1 auto 1;
     padding: 5px 5px 0px;
     position: relative;
     background-color: rgba(255, 255, 255, .4);
